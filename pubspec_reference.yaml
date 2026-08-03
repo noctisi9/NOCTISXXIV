@@ -1,0 +1,28 @@
+# Reference only — if you already have a pubspec.yaml in your Flutter
+# project, DO NOT overwrite it with this file. Just make sure these
+# lines exist somewhere in yours (name/description can stay as-is):
+
+name: noctis_xxiv
+description: NOCTIS XXIV — US30 research and trading intelligence platform
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+# No third-party chart/UI packages required — every chart in this build
+# (candlesticks, composite line, sparklines, oscillators, gauge) is drawn
+# with CustomPainter, so there's nothing extra to add to pubspec.yaml
+# for the dashboard itself. Windows desktop support needs to be enabled
+# separately if it isn't already:
+#   flutter config --enable-windows-desktop

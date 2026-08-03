@@ -1,0 +1,46 @@
+name: Build Windows Release
+
+# Runs automatically on every push to main, and can also be triggered
+# manually from the Actions tab (workflow_dispatch) whenever you want
+# a fresh build without pushing new code.
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Enable Windows desktop support
+        run: flutter config --enable-windows-desktop
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build Windows release
+        run: flutter build windows --release
+
+      # Zips the ENTIRE release folder (exe + data/ + DLLs together) —
+      # the exe alone will not run on its own, so this keeps everything
+      # bundled exactly the way it needs to be copied/shared.
+      - name: Package release folder
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath "noctis_xxiv_windows.zip"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: noctis-xxiv-windows-build
+          path: noctis_xxiv_windows.zip
+          retention-days: 30
