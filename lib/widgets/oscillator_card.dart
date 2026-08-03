@@ -3,14 +3,14 @@ import '../models/market_models.dart';
 import '../theme/app_theme.dart';
 import 'dashboard_card.dart';
 
-/// Renders AO or AC — same widget, different data and label.
+/// Renders AO or AC — same widget, different data/icon/label.
 /// NOTE: bars here are placeholder-random. Real AO/AC values will come
-/// straight from MT5's built-in indicator calculation (Research 003 §—
-/// "read from MT5, don't recalculate ourselves").
+/// straight from MT5's built-in indicator calculation.
 class OscillatorCard extends StatelessWidget {
   final String label;
+  final IconData icon;
   final List<OscillatorBar> bars;
-  const OscillatorCard({super.key, required this.label, required this.bars});
+  const OscillatorCard({super.key, required this.label, required this.icon, required this.bars});
 
   @override
   Widget build(BuildContext context) {
@@ -18,15 +18,15 @@ class OscillatorCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.red)),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 50,
-            child: CustomPaint(
-              size: const Size(double.infinity, 50),
-              painter: _BarPainter(bars),
-            ),
+          Row(
+            children: [
+              Icon(icon, size: 13, color: AppColors.red),
+              const SizedBox(width: 5),
+              Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.red)),
+            ],
           ),
+          const SizedBox(height: 4),
+          Expanded(child: CustomPaint(painter: _BarPainter(bars), size: Size.infinite)),
         ],
       ),
     );

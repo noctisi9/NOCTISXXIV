@@ -13,13 +13,13 @@ class MarketAverageCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionTitle(redPart: "PRICE REFLECTION", blackPart: "vs MARKET AVERAGE"),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 130,
-            width: double.infinity,
-            child: CustomPaint(painter: _DualLinePainter(points)),
+          const SectionTitle(
+            icon: Icons.timeline_rounded,
+            redPart: "PRICE REFLECTION",
+            blackPart: "vs MARKET AVERAGE",
           ),
+          const SizedBox(height: 8),
+          Expanded(child: CustomPaint(painter: _DualLinePainter(points), size: Size.infinite)),
         ],
       ),
     );
@@ -50,29 +50,18 @@ class _DualLinePainter extends CustomPainter {
       for (int i = 0; i < points.length; i++) {
         final x = xFor(i);
         final y = yFor(valueOf(points[i]));
-        if (i == 0) {
-          path.moveTo(x, y);
-        } else {
-          path.lineTo(x, y);
-        }
+        i == 0 ? path.moveTo(x, y) : path.lineTo(x, y);
       }
       return path;
     }
 
     canvas.drawPath(
       buildPath((p) => p.priceReflection),
-      Paint()
-        ..color = AppColors.black
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
+      Paint()..color = AppColors.black..style = PaintingStyle.stroke..strokeWidth = 2,
     );
-
     canvas.drawPath(
       buildPath((p) => p.marketAverage),
-      Paint()
-        ..color = AppColors.red
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.5,
+      Paint()..color = AppColors.red..style = PaintingStyle.stroke..strokeWidth = 2.5,
     );
   }
 

@@ -19,24 +19,36 @@ class NewsEventsCard extends StatelessWidget {
     return DashboardCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Text("NEWS EVENTS",
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.red)),
-          const SizedBox(height: 12),
+          const SectionTitle(icon: Icons.campaign_rounded, redPart: "NEWS EVENTS"),
+          const SizedBox(height: 10),
           if (event == null)
-            const Text("No high-impact event scheduled", style: TextStyle(color: AppColors.gray, fontSize: 12))
+            const Expanded(
+              child: Center(
+                child: Text("No high-impact event scheduled",
+                    style: TextStyle(color: AppColors.gray, fontSize: 11)),
+              ),
+            )
           else ...[
             Row(
               children: [
-                CircleAvatar(radius: 12, backgroundColor: AppColors.border, child: Text(event!.countryCode, style: const TextStyle(fontSize: 9))),
-                const SizedBox(width: 10),
+                Icon(Icons.flag_rounded, size: 20, color: AppColors.gray),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(event!.name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-                      Text("${event!.importance} Impact",
-                          style: const TextStyle(fontSize: 11, color: AppColors.red, fontWeight: FontWeight.w600)),
+                      Text(event!.name,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700)),
+                      Row(
+                        children: [
+                          const Icon(Icons.priority_high_rounded, size: 12, color: AppColors.red),
+                          Text("${event!.importance} Impact",
+                              style: const TextStyle(fontSize: 10.5, color: AppColors.red, fontWeight: FontWeight.w600)),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -45,28 +57,34 @@ class NewsEventsCard extends StatelessWidget {
                   children: [
                     Text(
                       "${event!.scheduledTime.hour.toString().padLeft(2, '0')}:${event!.scheduledTime.minute.toString().padLeft(2, '0')}",
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
                     ),
                     Text(_fmtCountdown(event!.countdown),
-                        style: const TextStyle(fontSize: 10, color: AppColors.red)),
+                        style: const TextStyle(fontSize: 9.5, color: AppColors.red)),
                   ],
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _Stat(label: "PREVIOUS", value: event!.previous, color: AppColors.bullish),
-                _Stat(label: "FORECAST", value: event!.forecast, color: AppColors.black),
-                _Stat(label: "ACTUAL", value: event!.actual ?? "---", color: AppColors.grayLight),
+                _Stat(icon: Icons.history_rounded, label: "PREVIOUS", value: event!.previous, color: AppColors.bullish),
+                _Stat(icon: Icons.trending_flat_rounded, label: "FORECAST", value: event!.forecast, color: AppColors.black),
+                _Stat(icon: Icons.check_circle_outline_rounded, label: "ACTUAL", value: event!.actual ?? "---", color: AppColors.grayLight),
               ],
             ),
-            const SizedBox(height: 14),
-            const Text("SIGNAL", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-            const SizedBox(height: 6),
+            const SizedBox(height: 10),
+            Row(
+              children: const [
+                Icon(Icons.bolt_rounded, size: 13, color: AppColors.black),
+                SizedBox(width: 4),
+                Text("SIGNAL", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+              ],
+            ),
+            const SizedBox(height: 4),
             Container(
-              height: 40,
+              height: 32,
               decoration: BoxDecoration(
                 border: Border.all(color: AppColors.red),
                 borderRadius: BorderRadius.circular(8),
@@ -80,18 +98,25 @@ class NewsEventsCard extends StatelessWidget {
 }
 
 class _Stat extends StatelessWidget {
+  final IconData icon;
   final String label, value;
   final Color color;
-  const _Stat({required this.label, required this.value, required this.color});
+  const _Stat({required this.icon, required this.label, required this.value, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 9, color: AppColors.gray, letterSpacing: 0.5)),
+        Row(
+          children: [
+            Icon(icon, size: 10, color: AppColors.gray),
+            const SizedBox(width: 3),
+            Text(label, style: const TextStyle(fontSize: 8.5, color: AppColors.gray, letterSpacing: 0.4)),
+          ],
+        ),
         const SizedBox(height: 2),
-        Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: color)),
+        Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color)),
       ],
     );
   }

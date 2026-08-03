@@ -25,31 +25,30 @@ class _PriceChartCardState extends State<PriceChartCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              RichText(
-                text: TextSpan(
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-                  children: [
-                    TextSpan(text: "DOW JONES INDEX (US30) ", style: TextStyle(color: AppColors.red)),
-                    TextSpan(text: "vs PRICE ACTION", style: TextStyle(color: AppColors.black)),
-                  ],
+              const Flexible(
+                child: SectionTitle(
+                  icon: Icons.candlestick_chart_rounded,
+                  redPart: "DOW JONES INDEX (US30)",
+                  blackPart: "vs PRICE ACTION",
                 ),
               ),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: _timeframes.map((tf) {
                   final active = tf == _tf;
                   return Padding(
-                    padding: const EdgeInsets.only(left: 6),
+                    padding: const EdgeInsets.only(left: 4),
                     child: GestureDetector(
                       onTap: () => setState(() => _tf = tf),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                         decoration: BoxDecoration(
                           border: Border.all(color: active ? AppColors.red : AppColors.border),
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(5),
                         ),
                         child: Text(tf,
                             style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w600,
                                 color: active ? AppColors.red : AppColors.gray)),
                       ),
@@ -59,27 +58,23 @@ class _PriceChartCardState extends State<PriceChartCard> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 220,
+          const SizedBox(height: 8),
+          Expanded(
             child: Stack(
               children: [
-                CustomPaint(
-                  size: const Size(double.infinity, 220),
-                  painter: _CandlePainter(widget.candles),
-                ),
+                Positioned.fill(child: CustomPaint(painter: _CandlePainter(widget.candles))),
                 Positioned(
                   right: 0,
-                  top: 90,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppColors.red,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      widget.currentPrice.toStringAsFixed(2),
-                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(color: AppColors.red, borderRadius: BorderRadius.circular(4)),
+                      child: Text(
+                        widget.currentPrice.toStringAsFixed(2),
+                        style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+                      ),
                     ),
                   ),
                 ),
@@ -131,8 +126,7 @@ class _CandlePainter extends CustomPainter {
       final bodyBottom = yFor([c.open, c.close].reduce((a, b) => a < b ? a : b));
       final rect = Rect.fromLTRB(x - bodyWidth / 2, bodyTop, x + bodyWidth / 2, bodyBottom.clamp(bodyTop + 1, size.height));
 
-      final fillPaint = Paint()..color = color;
-      canvas.drawRect(rect, fillPaint);
+      canvas.drawRect(rect, Paint()..color = color);
       canvas.drawRect(rect, Paint()..color = strokeColor..style = PaintingStyle.stroke..strokeWidth = 1);
     }
   }

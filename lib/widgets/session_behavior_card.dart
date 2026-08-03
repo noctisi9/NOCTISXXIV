@@ -16,36 +16,40 @@ class SessionBehaviorCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("SESSION BEHAVIOR",
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.black)),
-          const SizedBox(height: 12),
-          Row(
-            children: List.generate(sessions.length, (i) {
-              return Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(right: i < sessions.length - 1 ? 2 : 0),
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                  decoration: BoxDecoration(color: _tints[i % _tints.length]),
-                  child: Column(
-                    children: [
-                      Text(sessions[i].name,
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.w700, color: _colors[i % _colors.length])),
-                      Text(sessions[i].timeRange,
-                          style: const TextStyle(fontSize: 10, color: AppColors.gray)),
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        height: 36,
-                        child: CustomPaint(
-                          painter: _SparklinePainter(sessions[i].points, _colors[i % _colors.length]),
-                          child: const SizedBox.expand(),
+          const SectionTitle(icon: Icons.schedule_rounded, redPart: "SESSION", blackPart: "BEHAVIOR"),
+          const SizedBox(height: 8),
+          Expanded(
+            child: Row(
+              children: List.generate(sessions.length, (i) {
+                return Expanded(
+                  child: Container(
+                    margin: EdgeInsets.only(right: i < sessions.length - 1 ? 2 : 0),
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                    decoration: BoxDecoration(color: _tints[i % _tints.length]),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(sessions[i].name,
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 10.5, fontWeight: FontWeight.w700, color: _colors[i % _colors.length])),
+                        Text(sessions[i].timeRange,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 9, color: AppColors.gray)),
+                        const SizedBox(height: 4),
+                        Expanded(
+                          child: CustomPaint(
+                            painter: _SparklinePainter(sessions[i].points, _colors[i % _colors.length]),
+                            size: Size.infinite,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            }),
+                );
+              }),
+            ),
           ),
         ],
       ),

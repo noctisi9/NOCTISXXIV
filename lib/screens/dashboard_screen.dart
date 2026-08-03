@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/market_models.dart';
 import '../services/data_service.dart';
-import '../theme/app_theme.dart';
-import '../widgets/sidebar.dart';
 import '../widgets/price_chart_card.dart';
 import '../widgets/market_average_card.dart';
 import '../widgets/session_behavior_card.dart';
@@ -11,6 +9,10 @@ import '../widgets/signal_engine_card.dart';
 import '../widgets/oscillator_card.dart';
 import '../widgets/dashboard_card.dart';
 
+/// Everything here uses Expanded/flex instead of fixed heights or
+/// SingleChildScrollView. That's deliberate: the whole point is that
+/// this fits inside whatever window size it's given, compressing
+/// proportionally rather than scrolling or overflowing.
 class DashboardScreen extends StatefulWidget {
   final DataService dataService;
   const DashboardScreen({super.key, required this.dataService});
@@ -33,46 +35,69 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final snap = _snapshot;
-
     if (snap == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Center(child: CircularProgressIndicator());
     }
 
-    return Scaffold(
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Sidebar(),
+          // LEFT COLUMN — chart stack. Flex ratios: price chart gets the
+          // most vertical room, market average next, session behavior least.
           Expanded(
             flex: 17,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (!snap.isLiveData) const Padding(
-                    padding: EdgeInsets.only(bottom: 12),
-                    child: MockDataBadge(),
-                  ),
-                  PriceChartCard(candles: snap.candles, currentPrice: snap.currentPrice),
-                  MarketAverageCard(points: snap.composite),
-                  SessionBehaviorCard(sessions: snap.sessions),
-                ],
-              ),
+            child: Column(
+              children: [
+                if (!snap.isLiveData) const Padding(
+                  padding: EdgeInsets.only(bottom: 8),
+                  child: Align(alignment: Alignment.centerLeft, child: MockDataBadge()),
+                ),
+                Expanded(
+                  flex: 5,
+                  child: PriceChartCard(candles: snap.candles, currentPrice: snap.currentPrice),
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  flex: 3,
+                  child: MarketAverageCard(points: snap.composite),
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  flex: 2,
+                  child: SessionBehaviorCard(sessions: snap.sessions),
+                ),
+              ],
             ),
           ),
+          const SizedBox(width: 16),
+          // RIGHT COLUMN — news/signal/oscillators.
           Expanded(
             flex: 10,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(0, 20, 20, 20),
-              child: Column(
-                children: [
-                  NewsEventsCard(event: snap.nextEvent),
-                  SignalEngineCard(state: snap.signalEngine),
-                  OscillatorCard(label: "AO", bars: snap.ao),
-                  OscillatorCard(label: "AC", bars: snap.ac),
-                ],
-              ),
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: NewsEventsCard(event: snap.nextEvent),
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  flex: 4,
+                  child: SignalEngineCard(state: snap.signalEngine),
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  flex: 2,
+                  child: Row(
+                    children: [
+                      Expanded(child: OscillatorCard(label: "AO", icon: Icons.show_chart_rounded, bars: snap.ao)),
+                      const SizedBox(width: 12),
+                      Expanded(child: OscillatorCard(label: "AC", icon: Icons.bar_chart_rounded, bars: snap.ac)),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ],

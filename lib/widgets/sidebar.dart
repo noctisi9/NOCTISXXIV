@@ -1,14 +1,37 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
+class NavPage {
+  final String label;
+  final IconData icon;
+  const NavPage(this.label, this.icon);
+}
+
+const List<NavPage> kNavPages = [
+  NavPage("Dashboard", Icons.dashboard_rounded),
+  NavPage("News calendar", Icons.calendar_month_rounded),
+  NavPage("Subscriptions", Icons.workspace_premium_rounded),
+  NavPage("Trade history", Icons.history_rounded),
+  NavPage("Reports", Icons.insert_chart_rounded),
+];
+
 class Sidebar extends StatelessWidget {
-  const Sidebar({super.key});
+  final int selectedIndex;
+  final ValueChanged<int> onSelect;
+  final VoidCallback onSettingsTap;
+
+  const Sidebar({
+    super.key,
+    required this.selectedIndex,
+    required this.onSelect,
+    required this.onSettingsTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 200,
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      width: 180,
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 14),
       decoration: const BoxDecoration(
         border: Border(right: BorderSide(color: AppColors.border)),
       ),
@@ -16,15 +39,22 @@ class Sidebar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const _Logo(),
-          const SizedBox(height: 24),
-          _NavItem(label: "Dashboard", active: true),
-          const _NavItem(label: "News calendar"),
-          const _NavItem(label: "Subscriptions"),
-          const _NavItem(label: "Trade history"),
-          const _NavItem(label: "Reports"),
+          const SizedBox(height: 20),
+          for (int i = 0; i < kNavPages.length; i++)
+            _NavItem(
+              label: kNavPages[i].label,
+              icon: kNavPages[i].icon,
+              active: selectedIndex == i,
+              onTap: () => onSelect(i),
+            ),
           const Spacer(),
           const Divider(color: AppColors.border),
-          const _NavItem(label: "Settings", icon: Icons.settings_outlined),
+          _NavItem(
+            label: "Settings",
+            icon: Icons.settings_rounded,
+            active: false,
+            onTap: onSettingsTap,
+          ),
         ],
       ),
     );
@@ -38,29 +68,12 @@ class _Logo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(
-          width: 64,
-          height: 64,
-          child: CustomPaint(painter: _FlowerMarkPainter()),
-        ),
-        const SizedBox(height: 6),
-        const Text(
-          "NOCTIS",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 3,
-            color: AppColors.black,
-          ),
-        ),
-        const Text(
-          "XXIV",
-          style: TextStyle(
-            fontSize: 12,
-            letterSpacing: 4,
-            color: AppColors.gray,
-          ),
-        ),
+        SizedBox(width: 48, height: 48, child: CustomPaint(painter: _FlowerMarkPainter())),
+        const SizedBox(height: 4),
+        const Text("NOCTIS",
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: 2.5, color: AppColors.black)),
+        const Text("XXIV",
+            style: TextStyle(fontSize: 10, letterSpacing: 3, color: AppColors.gray)),
       ],
     );
   }
@@ -93,37 +106,41 @@ class _FlowerMarkPainter extends CustomPainter {
 
 class _NavItem extends StatelessWidget {
   final String label;
+  final IconData icon;
   final bool active;
-  final IconData? icon;
-  const _NavItem({required this.label, this.active = false, this.icon});
+  final VoidCallback onTap;
+  const _NavItem({required this.label, required this.icon, required this.active, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 4),
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-      decoration: BoxDecoration(
-        color: active ? AppColors.panelTint : null,
-        borderRadius: BorderRadius.circular(8),
-        border: active
-            ? const Border(left: BorderSide(color: AppColors.red, width: 3))
-            : null,
-      ),
-      child: Row(
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 16, color: active ? AppColors.red : AppColors.black),
-            const SizedBox(width: 8),
-          ],
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: active ? AppColors.red : AppColors.black,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 4),
+        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 10),
+        decoration: BoxDecoration(
+          color: active ? AppColors.panelTint : null,
+          borderRadius: BorderRadius.circular(8),
+          border: active ? const Border(left: BorderSide(color: AppColors.red, width: 3)) : null,
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 17, color: active ? AppColors.red : AppColors.gray),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: active ? AppColors.red : AppColors.black,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

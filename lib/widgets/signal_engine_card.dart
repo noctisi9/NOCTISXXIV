@@ -4,6 +4,14 @@ import '../models/market_models.dart';
 import '../theme/app_theme.dart';
 import 'dashboard_card.dart';
 
+const Map<String, IconData> kScoreIcons = {
+  "News Score": Icons.campaign_rounded,
+  "Composite Score": Icons.timeline_rounded,
+  "Session Score": Icons.schedule_rounded,
+  "Trend Score": Icons.trending_up_rounded,
+  "Volatility Score": Icons.bolt_rounded,
+};
+
 class SignalEngineCard extends StatelessWidget {
   final SignalEngineState state;
   const SignalEngineCard({super.key, required this.state});
@@ -13,66 +21,71 @@ class SignalEngineCard extends StatelessWidget {
     return DashboardCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Text("SIGNAL ENGINE",
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.black)),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 100,
-                height: 100,
-                child: CustomPaint(
-                  painter: _GaugePainter(state.confidencePercent),
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text("${state.confidencePercent.round()}%",
-                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-                        const Text("BULLISH",
-                            style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AppColors.red)),
-                        const Text("CONFIDENCE", style: TextStyle(fontSize: 7, color: AppColors.gray)),
-                      ],
+          const SectionTitle(icon: Icons.hub_rounded, redPart: "SIGNAL ENGINE"),
+          const SizedBox(height: 8),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: CustomPaint(
+                    painter: _GaugePainter(state.confidencePercent),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text("${state.confidencePercent.round()}%",
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                          const Text("BULLISH",
+                              style: TextStyle(fontSize: 8.5, fontWeight: FontWeight.w700, color: AppColors.red)),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ...state.components.map((c) => Padding(
-                          padding: const EdgeInsets.only(bottom: 6),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(c.label, style: const TextStyle(fontSize: 11)),
-                              Text("${c.percent.round()}%",
-                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
-                            ],
-                          ),
-                        )),
-                    const SizedBox(height: 2),
-                    Text(
-                      "Based on ${state.sampleSize} comparable historical events",
-                      style: const TextStyle(fontSize: 9, color: AppColors.gray, fontStyle: FontStyle.italic),
-                    ),
-                  ],
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ...state.components.map((c) => Padding(
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: Row(
+                              children: [
+                                Icon(kScoreIcons[c.label] ?? Icons.circle, size: 11, color: AppColors.gray),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(c.label,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontSize: 10)),
+                                ),
+                                Text("${c.percent.round()}%",
+                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600)),
+                              ],
+                            ),
+                          )),
+                      Text(
+                        "Based on ${state.sampleSize} events",
+                        style: const TextStyle(fontSize: 8.5, color: AppColors.gray, fontStyle: FontStyle.italic),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(child: _ActionButton(label: "BUY ↑", active: state.recommendation == SignalAction.buy, style: _ButtonStyle.buy)),
-              const SizedBox(width: 8),
-              Expanded(child: _ActionButton(label: "WAIT", active: state.recommendation == SignalAction.wait, style: _ButtonStyle.neutral)),
-              const SizedBox(width: 8),
-              Expanded(child: _ActionButton(label: "SELL ↓", active: state.recommendation == SignalAction.sell, style: _ButtonStyle.sell)),
+              Expanded(child: _ActionButton(label: "BUY", icon: Icons.arrow_upward_rounded, active: state.recommendation == SignalAction.buy, style: _ButtonStyle.buy)),
+              const SizedBox(width: 6),
+              Expanded(child: _ActionButton(label: "WAIT", icon: Icons.pause_rounded, active: state.recommendation == SignalAction.wait, style: _ButtonStyle.neutral)),
+              const SizedBox(width: 6),
+              Expanded(child: _ActionButton(label: "SELL", icon: Icons.arrow_downward_rounded, active: state.recommendation == SignalAction.sell, style: _ButtonStyle.sell)),
             ],
           ),
         ],
@@ -85,9 +98,10 @@ enum _ButtonStyle { buy, neutral, sell }
 
 class _ActionButton extends StatelessWidget {
   final String label;
+  final IconData icon;
   final bool active;
   final _ButtonStyle style;
-  const _ActionButton({required this.label, required this.active, required this.style});
+  const _ActionButton({required this.label, required this.icon, required this.active, required this.style});
 
   @override
   Widget build(BuildContext context) {
@@ -99,14 +113,20 @@ class _ActionButton extends StatelessWidget {
       if (style == _ButtonStyle.neutral) { bg = AppColors.black; fg = Colors.white; }
     }
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(8),
         border: active ? null : Border.all(color: AppColors.border),
       ),
-      alignment: Alignment.center,
-      child: Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: fg)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: fg),
+          const SizedBox(height: 1),
+          Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: fg)),
+        ],
+      ),
     );
   }
 }
@@ -120,10 +140,7 @@ class _GaugePainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2 - 6;
 
-    canvas.drawCircle(center, radius, Paint()
-      ..color = AppColors.border
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 8);
+    canvas.drawCircle(center, radius, Paint()..color = AppColors.border..style = PaintingStyle.stroke..strokeWidth = 7);
 
     final sweep = 2 * math.pi * (percent / 100);
     canvas.drawArc(
@@ -131,11 +148,7 @@ class _GaugePainter extends CustomPainter {
       -math.pi / 2,
       sweep,
       false,
-      Paint()
-        ..color = AppColors.red
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 8
-        ..strokeCap = StrokeCap.round,
+      Paint()..color = AppColors.red..style = PaintingStyle.stroke..strokeWidth = 7..strokeCap = StrokeCap.round,
     );
   }
 

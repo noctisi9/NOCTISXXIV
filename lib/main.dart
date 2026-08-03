@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
 import 'services/data_service.dart';
-import 'screens/dashboard_screen.dart';
+import 'screens/app_shell.dart';
 
 void main() {
   runApp(const NoctisApp());
@@ -24,7 +24,7 @@ class NoctisApp extends StatelessWidget {
       title: 'NOCTIS XXIV',
       theme: noctisTheme,
       debugShowCheckedModeBanner: false,
-      home: DashboardScreen(dataService: dataService),
+      home: AppShell(dataService: dataService),
     );
   }
 }

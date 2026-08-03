@@ -1,5 +1,28 @@
-<<<<<<< HEAD
 # NOCTIS XXIV — Dashboard Shell (Placeholder Data)
+
+## Update: no-scroll layout + icons + real page navigation
+
+Three changes since the last version:
+
+1. **No scrolling anywhere.** Every card now sizes itself via `Expanded`
+   and flex ratios instead of fixed pixel heights or
+   `SingleChildScrollView`. The whole dashboard compresses to fit
+   whatever window size it's given — resize the window and everything
+   shrinks/grows proportionally rather than overflowing or scrolling.
+2. **Icons everywhere** — every sidebar item and every card header now
+   has a matching icon (all from Flutter's built-in `Icons` set, no
+   extra packages needed).
+3. **Real multi-page navigation.** Clicking a sidebar item now actually
+   switches pages via `AppShell` (`lib/screens/app_shell.dart`), using
+   an `IndexedStack` so the Dashboard's live data stream doesn't reset
+   every time you click away and back. News Calendar / Subscriptions /
+   Trade History / Reports currently show a placeholder page — the
+   navigation wiring is real, the page content behind it isn't built
+   yet.
+
+If you already have this project scaffolded locally (which you do),
+just replace your existing `lib/` folder with the one in this zip —
+everything else (pubspec.yaml, windows/, .github/) stays as-is.
 
 ## What this is
 
@@ -76,6 +99,3 @@ UI directly.
   looking at something real
 - Timeframe tabs (M1/M5/etc.) are visually wired up but don't yet
   re-fetch different data — that's meaningful once real data exists
-=======
-# NOCTISXXIV
->>>>>>> ec65c415d718c3c92e17f21a1a0714328b00b76b

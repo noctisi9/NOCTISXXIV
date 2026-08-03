@@ -1,0 +1,23 @@
+# Flutter/Dart build artifacts
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Windows-specific build output
+windows/flutter/ephemeral/
+windows/x64/
+
+# macOS
+.DS_Store
+
+# Misc
+*.log
+.pub-cache/
+.pub/
