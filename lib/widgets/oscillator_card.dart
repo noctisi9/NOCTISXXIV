@@ -40,15 +40,29 @@ class _BarPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (bars.isEmpty) return;
+
     final maxV = bars.map((b) => b.value).reduce((a, b) => a > b ? a : b).clamp(1, double.infinity);
     final slot = size.width / bars.length;
     final barWidth = slot * 0.6;
+    final zeroY = size.height / 2;
+    final halfHeight = size.height / 2;
+
+    // Zero baseline — makes it visually explicit where "above" vs "below" is.
+    canvas.drawLine(
+      Offset(0, zeroY),
+      Offset(size.width, zeroY),
+      Paint()..color = AppColors.border..strokeWidth = 1,
+    );
 
     for (int i = 0; i < bars.length; i++) {
       final b = bars[i];
-      final h = (b.value / maxV) * size.height;
+      final barLength = (b.value / maxV) * halfHeight;
       final x = slot * i + (slot - barWidth) / 2;
-      final rect = Rect.fromLTWH(x, size.height - h, barWidth, h);
+
+      final rect = b.isBullish
+          ? Rect.fromLTWH(x, zeroY - barLength, barWidth, barLength) // grows UP from zero
+          : Rect.fromLTWH(x, zeroY, barWidth, barLength);            // grows DOWN from zero
+
       canvas.drawRect(rect, Paint()..color = b.isBullish ? AppColors.black : AppColors.red);
     }
   }
