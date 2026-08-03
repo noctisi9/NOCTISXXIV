@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # NOCTIS XXIV — Dashboard Shell (Placeholder Data)
 
 ## What this is
@@ -75,3 +76,6 @@ UI directly.
   looking at something real
 - Timeframe tabs (M1/M5/etc.) are visually wired up but don't yet
   re-fetch different data — that's meaningful once real data exists
+=======
+# NOCTISXXIV
+>>>>>>> ec65c415d718c3c92e17f21a1a0714328b00b76b
