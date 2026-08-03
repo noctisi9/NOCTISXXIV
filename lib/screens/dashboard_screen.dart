@@ -88,12 +88,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: 12),
                 Expanded(
-                  flex: 2,
-                  child: Row(
+                  flex: 3,
+                  child: Column(
                     children: [
-                      Expanded(child: OscillatorCard(label: "AO", icon: Icons.show_chart_rounded, bars: snap.ao)),
-                      const SizedBox(width: 12),
-                      Expanded(child: OscillatorCard(label: "AC", icon: Icons.bar_chart_rounded, bars: snap.ac)),
+                      Expanded(
+                        child: OscillatorCard(label: "AO", icon: Icons.show_chart_rounded, bars: snap.ao),
+                      ),
+                      const SizedBox(height: 12),
+                      Expanded(
+                        child: OscillatorCard(label: "AC", icon: Icons.bar_chart_rounded, bars: snap.ac),
+                      ),
                     ],
                   ),
                 ),
