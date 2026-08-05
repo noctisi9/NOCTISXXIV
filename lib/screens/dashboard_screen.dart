@@ -7,7 +7,6 @@ import '../widgets/session_behavior_card.dart';
 import '../widgets/news_events_card.dart';
 import '../widgets/signal_engine_card.dart';
 import '../widgets/oscillator_card.dart';
-import '../widgets/dashboard_card.dart';
 
 /// Everything here uses Expanded/flex instead of fixed heights or
 /// SingleChildScrollView. That's deliberate: the whole point is that
@@ -23,6 +22,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   DashboardSnapshot? _snapshot;
+  String _selectedTimeframe = "M1";
 
   @override
   void initState() {
@@ -30,6 +30,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     widget.dataService.watchDashboard().listen((snapshot) {
       if (mounted) setState(() => _snapshot = snapshot);
     });
+  }
+
+  void _onTimeframeChanged(String tf) {
+    setState(() => _selectedTimeframe = tf);
+    widget.dataService.setTimeframe(tf);
   }
 
   @override
@@ -50,13 +55,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             flex: 17,
             child: Column(
               children: [
-                if (!snap.isLiveData) const Padding(
-                  padding: EdgeInsets.only(bottom: 8),
-                  child: Align(alignment: Alignment.centerLeft, child: MockDataBadge()),
-                ),
                 Expanded(
                   flex: 5,
-                  child: PriceChartCard(candles: snap.candles, currentPrice: snap.currentPrice),
+                  child: PriceChartCard(
+                    candles: snap.candles,
+                    currentPrice: snap.currentPrice,
+                    selectedTimeframe: _selectedTimeframe,
+                    onTimeframeChanged: _onTimeframeChanged,
+                    lastUpdated: snap.lastUpdated,
+                    isLiveData: snap.isLiveData,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Expanded(

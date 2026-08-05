@@ -3,18 +3,31 @@ import '../models/market_models.dart';
 import '../theme/app_theme.dart';
 import 'dashboard_card.dart';
 
-class PriceChartCard extends StatefulWidget {
+class PriceChartCard extends StatelessWidget {
   final List<Candle> candles;
   final double currentPrice;
-  const PriceChartCard({super.key, required this.candles, required this.currentPrice});
+  final String selectedTimeframe;
+  final ValueChanged<String> onTimeframeChanged;
+  final DateTime lastUpdated;
+  final bool isLiveData;
 
-  @override
-  State<PriceChartCard> createState() => _PriceChartCardState();
-}
+  const PriceChartCard({
+    super.key,
+    required this.candles,
+    required this.currentPrice,
+    required this.selectedTimeframe,
+    required this.onTimeframeChanged,
+    required this.lastUpdated,
+    required this.isLiveData,
+  });
 
-class _PriceChartCardState extends State<PriceChartCard> {
-  String _tf = "M5";
   static const _timeframes = ["M1", "M5", "M15", "H1", "H4", "D1"];
+
+  String _secondsAgo() {
+    final diff = DateTime.now().difference(lastUpdated).inSeconds;
+    if (diff < 2) return "just now";
+    return "${diff}s ago";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,11 +48,11 @@ class _PriceChartCardState extends State<PriceChartCard> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: _timeframes.map((tf) {
-                  final active = tf == _tf;
+                  final active = tf == selectedTimeframe;
                   return Padding(
                     padding: const EdgeInsets.only(left: 4),
                     child: GestureDetector(
-                      onTap: () => setState(() => _tf = tf),
+                      onTap: () => onTimeframeChanged(tf),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                         decoration: BoxDecoration(
@@ -58,11 +71,24 @@ class _PriceChartCardState extends State<PriceChartCard> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
+          // This is the part that proves the data is actually refreshing,
+          // rather than sitting still - it counts up every poll cycle.
+          Row(
+            children: [
+              Icon(Icons.circle, size: 7, color: isLiveData ? Colors.green : AppColors.grayLight),
+              const SizedBox(width: 4),
+              Text(
+                isLiveData ? "Live - updated ${_secondsAgo()}" : "Disconnected",
+                style: TextStyle(fontSize: 9.5, color: isLiveData ? AppColors.gray : AppColors.red),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
           Expanded(
             child: Stack(
               children: [
-                Positioned.fill(child: CustomPaint(painter: _CandlePainter(widget.candles))),
+                Positioned.fill(child: CustomPaint(painter: _CandlePainter(candles))),
                 Positioned(
                   right: 0,
                   top: 0,
@@ -72,7 +98,7 @@ class _PriceChartCardState extends State<PriceChartCard> {
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(color: AppColors.red, borderRadius: BorderRadius.circular(4)),
                       child: Text(
-                        widget.currentPrice.toStringAsFixed(2),
+                        currentPrice.toStringAsFixed(2),
                         style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
                       ),
                     ),

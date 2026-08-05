@@ -107,6 +107,7 @@ class DashboardSnapshot {
   final List<OscillatorBar> ac;
   final double currentPrice;
   final bool isLiveData; // false = placeholder/mock, true = real MT5 feed
+  final DateTime lastUpdated;
 
   const DashboardSnapshot({
     required this.candles,
@@ -118,5 +119,6 @@ class DashboardSnapshot {
     required this.ac,
     required this.currentPrice,
     required this.isLiveData,
+    required this.lastUpdated,
   });
 }

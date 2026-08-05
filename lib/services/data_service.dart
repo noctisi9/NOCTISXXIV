@@ -15,4 +15,8 @@ abstract class DataService {
 
   /// One-off fetch, useful for manual refresh.
   Future<DashboardSnapshot> fetchDashboard();
+
+  /// Changes which candle timeframe subsequent data represents
+  /// (e.g. "M1", "M5", "H1"). Triggers an immediate refresh.
+  void setTimeframe(String timeframe);
 }

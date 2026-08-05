@@ -6,39 +6,43 @@ import 'data_service.dart';
 
 /// Real implementation, backed by the Python FastAPI bridge (mt5_server.py).
 ///
-/// IMPORTANT — honesty about what's real vs. not yet built:
-/// - candles, currentPrice, ao, ac  → REAL, live from MT5
-/// - composite, sessions, nextEvent, signalEngine → these engines don't
-///   exist yet, so they're returned as explicit NEUTRAL/EMPTY states
-///   below, never randomly generated. isLiveData reflects whether the
-///   price connection itself is working, not whether every card has
-///   real data — each engine gets wired in one at a time.
+/// Honesty about what's real vs. not yet built:
+/// - candles, currentPrice, ao, ac  -> REAL, live from MT5
+/// - composite, sessions, nextEvent, signalEngine -> these engines don't
+///   exist yet, so they're returned as explicit NEUTRAL/EMPTY states,
+///   never randomly generated.
 class Mt5DataService implements DataService {
   final String baseUrl;
   final _controller = StreamController<DashboardSnapshot>.broadcast();
   Timer? _timer;
+  String _timeframe = "M1";
 
   Mt5DataService({this.baseUrl = "http://localhost:8000"}) {
-    _timer = Timer.periodic(const Duration(seconds: 5), (_) => _poll());
+    // 3 second poll - fast enough that the "last updated" clock and the
+    // forming candle both visibly move, without hammering the server.
+    _timer = Timer.periodic(const Duration(seconds: 3), (_) => _poll());
   }
 
   @override
   Stream<DashboardSnapshot> watchDashboard() {
-    _poll(); // fetch immediately so the UI isn't blank on first frame
+    _poll();
     return _controller.stream;
   }
 
   @override
   Future<DashboardSnapshot> fetchDashboard() async => _fetchSnapshot();
 
+  @override
+  void setTimeframe(String timeframe) {
+    _timeframe = timeframe;
+    _poll(); // refresh immediately on switch, don't wait for next tick
+  }
+
   Future<void> _poll() async {
     try {
       final snapshot = await _fetchSnapshot();
       _controller.add(snapshot);
     } catch (e) {
-      // Connection failed (server not running, MT5 not connected, wrong
-      // symbol, etc.) — surface a clearly-disconnected snapshot rather
-      // than silently freezing on stale data or crashing the UI.
       _controller.add(_disconnectedSnapshot());
       // ignore: avoid_print
       print("Mt5DataService poll failed: $e");
@@ -47,7 +51,7 @@ class Mt5DataService implements DataService {
 
   Future<DashboardSnapshot> _fetchSnapshot() async {
     final response = await http
-        .get(Uri.parse("$baseUrl/api/price-state"))
+        .get(Uri.parse("$baseUrl/api/price-state?timeframe=$_timeframe"))
         .timeout(const Duration(seconds: 8));
 
     if (response.statusCode != 200) {
@@ -73,16 +77,23 @@ class Mt5DataService implements DataService {
         .map((b) => OscillatorBar((b["value"] as num).toDouble(), b["isBullish"] as bool))
         .toList();
 
+    DateTime fetchedAt;
+    try {
+      fetchedAt = DateTime.parse(data["fetched_at"] as String).toLocal();
+    } catch (_) {
+      fetchedAt = DateTime.now();
+    }
+
     return DashboardSnapshot(
       candles: candles,
       currentPrice: (data["current_price"] as num).toDouble(),
       ao: ao,
       ac: ac,
       isLiveData: true,
-      // ── Not built yet — honest neutral states, not fake data ──
+      lastUpdated: fetchedAt,
       composite: _neutralComposite(candles.length),
       sessions: _neutralSessions(),
-      nextEvent: null, // News Engine doesn't exist yet
+      nextEvent: null,
       signalEngine: _neutralSignalEngine(),
     );
   }
@@ -94,6 +105,7 @@ class Mt5DataService implements DataService {
       ao: const [],
       ac: const [],
       isLiveData: false,
+      lastUpdated: DateTime.now(),
       composite: _neutralComposite(0),
       sessions: _neutralSessions(),
       nextEvent: null,
@@ -104,9 +116,6 @@ class Mt5DataService implements DataService {
   static List<CompositePoint> _neutralComposite(int length) {
     final now = DateTime.now();
     final n = length > 0 ? length : 24;
-    // Flat zero line — Market Average Engine isn't built yet, so there's
-    // nothing real to show. Zero/flat is the honest placeholder; it
-    // should never move until the real engine replaces this.
     return List.generate(
       n,
       (i) => CompositePoint(
@@ -120,10 +129,10 @@ class Mt5DataService implements DataService {
   static List<SessionBehavior> _neutralSessions() {
     final flat = List.generate(9, (_) => const SessionPoint(0));
     return [
-      SessionBehavior(name: "ASIAN", timeRange: "00:00 – 07:00", points: flat),
-      SessionBehavior(name: "LONDON", timeRange: "07:00 – 12:00", points: flat),
-      SessionBehavior(name: "NEW YORK", timeRange: "12:00 – 20:00", points: flat),
-      SessionBehavior(name: "AFTER HOURS", timeRange: "20:00 – 24:00", points: flat),
+      SessionBehavior(name: "ASIAN", timeRange: "00:00 - 07:00", points: flat),
+      SessionBehavior(name: "LONDON", timeRange: "07:00 - 12:00", points: flat),
+      SessionBehavior(name: "NEW YORK", timeRange: "12:00 - 20:00", points: flat),
+      SessionBehavior(name: "AFTER HOURS", timeRange: "20:00 - 24:00", points: flat),
     ];
   }
 
