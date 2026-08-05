@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
 import 'services/data_service.dart';
+import 'services/mt5_data_service.dart';
 import 'screens/app_shell.dart';
 
 void main() {
@@ -13,12 +14,10 @@ class NoctisApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // ─────────────────────────────────────────────────────────
-    // SWAP POINT: this is the only line that changes when the
-    // MT5 bridge is ready. Replace MockDataService() with
-    // Mt5DataService(baseUrl: 'http://localhost:8000') once the
-    // Python bridge's API (Research 003 §10) is live.
+    // Real MT5 data. Requires mt5_server.py running locally
+    // (uvicorn mt5_server:app --port 8000) with MT5 terminal open.
     // ─────────────────────────────────────────────────────────
-    final DataService dataService = MockDataService();
+    final DataService dataService = Mt5DataService();
 
     return MaterialApp(
       title: 'NOCTIS XXIV',
